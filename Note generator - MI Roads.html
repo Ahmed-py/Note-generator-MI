@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Note Generator</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+line-height: 1.6;
+margin: 20px;
+background-color: #d9f2f9; /* Light blue background */
+}
+.section {
+margin-bottom: 20px;
+display: none; /* Initially hidden */
+}
+.section h3 {
+margin-bottom: 10px;
+color: #2c3e50;
+}
+.section label {
+display: block;
+margin: 5px 0;
+}
+.section select, .section textarea, .section input {
+width: 100%;
+margin-bottom: 10px;
+}
+.generate-btn {
+background-color: #3498db;
+color: white;
+padding: 10px 15px;
+border: none;
+cursor: pointer;
+border-radius: 5px;
+}
+.generate-btn:hover {
+background-color: #2980b9;
+}
+.output {
+white-space: pre-wrap;
+background: #ecf0f1;
+padding: 15px;
+border-radius: 5px;
+margin-top: 20px;
+}
+/* Highlight select inputs based on Yes/No */
+.highlight-yes {
+background-color: #d4edda; /* Green background */
+}
+.highlight-no {
+background-color: #f8d7da; /* Red background */
+}
+</style>
+</head>
+<body>
+
+<h1>Interactive Note Generator</h1>
+
+<div class="section" id="section1">
+<h3>1. Add the Issue ID</h3>
+<input type="text" id="issue_id" placeholder="Enter the Issue ID">
+<button onclick="showNextSection(1)">Next</button>
+</div>
+
+<div class="section" id="section2">
+<h3>2. Add the Issue Class</h3>
+<input type="text" id="issue_class" placeholder="Enter the Issue Class">
+<button onclick="showNextSection(2)">Next</button>
+</div>
+
+<div class="section" id="section3">
+<h3>3. Is it a highway road? If yes, mark as WAI</h3>
+<select id="is_highway" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<button onclick="showNextSection(3)">Next</button>
+</div>
+
+<!-- New Questions -->
+<div class="section" id="section4">
+<h3>4. Is the Geometry made?</h3>
+<select id="geometry_made" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Does the geometry correspond to GDL?</label>
+<select id="geometry_gdl" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Does the geometry correspond to Aerial Imagery?</label>
+<select id="geometry_aerial" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Does the geometry correspond to GLS arrows?</label>
+<select id="geometry_gls" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Does the geometry correspond to SV?</label>
+<select id="geometry_sv" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<button onclick="showNextSection(4)">Next</button>
+</div>
+
+<div class="section" id="section5">
+<h3>5. Is the Route Name set?</h3>
+<select id="route_name_set" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Is the route name the same as in GDL?</label>
+<select id="route_gdl" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Is the route name the same as on visible signs on SV?</label>
+<select id="route_signs_sv" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<button onclick="showNextSection(5)">Next</button>
+</div>
+
+<div class="section" id="section6">
+<h3>6. Are the LP Flags set?</h3>
+<select id="lp_flags" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<button onclick="showNextSection(6)">Next</button>
+</div>
+
+<div class="section" id="section7">
+<h3>7. Is the Road Priority (Terminal, Local, Etc.) correct?</h3>
+<select id="road_priority" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<button onclick="showNextSection(7)">Next</button>
+</div>
+
+<div class="section" id="section8">
+<h3>8. Are the Intersections Connected?</h3>
+<select id="intersections_connected" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<button onclick="showNextSection(8)">Next</button>
+</div>
+
+<!-- Existing Questions -->
+<div class="section" id="section9">
+<h3>9. Address Ranges</h3>
+<label>Are there Address Ranges?</label>
+<select id="address_ranges" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Is the route name the same as in GDL?</label>
+<select id="ar_route_gdl" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Does AR correspond to existing GDL geocodes?</label>
+<select id="ar_gdl_geocodes" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Does AR correspond to building numbers visible on SV?</label>
+<select id="ar_building_sv" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<button onclick="showNextSection(9)">Next</button>
+</div>
+
+<div class="section" id="section10">
+<h3>10. Private Attribute Check</h3>
+<label>Is there a visible gate or fence on SV or AI?</label>
+<select id="private_gate" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Is there a visible sign on SV?</label>
+<select id="private_sign" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<button onclick="showNextSection(10)">Next</button>
+</div>
+
+<div class="section" id="section11">
+<h3>11. Turn Restrictions</h3>
+<label>Are turn restrictions needed?</label>
+<select id="turn_restrictions" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Is there a visible sign on SV?</label>
+<select id="turn_visible_sign" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Is there an intersection with Minor Arterial or higher priority road?</label>
+<select id="turn_priority_road" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<label>Is there a staggered intersection?</label>
+<select id="turn_staggered" onchange="applyHighlight(this)">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+<button onclick="showNextSection(11)">Next</button>
+</div>
+
+<div class="section" id="section12">
+<h3>12. Other Notes</h3>
+<textarea id="other_notes" placeholder="Add any additional notes here..."></textarea>
+<button class="generate-btn" onclick="generateNotes()">Generate Notes</button>
+</div>
+
+<div class="output" id="output"></div>
+
+<script>
+// Show the first section on load
+document.getElementById("section1").style.display = "block";
+
+// Function to show the next section
+function showNextSection(current) {
+document.getElementById(`section${current}`).style.display = "none";
+document.getElementById(`section${current + 1}`).style.display = "block";
+}
+
+// Function to apply highlight to dropdown fields
+function applyHighlight(selectElement) {
+if (selectElement.value === "Yes") {
+selectElement.classList.remove("highlight-no");
+selectElement.classList.add("highlight-yes");
+} else if (selectElement.value === "No") {
+selectElement.classList.remove("highlight-yes");
+selectElement.classList.add("highlight-no");
+} else {
+selectElement.classList.remove("highlight-yes", "highlight-no");
+}
+}
+
+// Function to generate notes and copy to clipboard
+function generateNotes() {
+let output = `
+1. Add the Issue ID
+- Issue ID: ${document.getElementById('issue_id').value}
+
+2. Add the Issue Class
+- Issue Class: ${document.getElementById('issue_class').value}
+
+3. Is it a highway road? If yes, mark as WAI
+- Is it a highway road: ${document.getElementById('is_highway').value}
+
+4. Is the Geometry made?
+- Geometry Made: ${document.getElementById('geometry_made').value}
+- Geometry corresponds to GDL: ${document.getElementById('geometry_gdl').value}
+- Geometry corresponds to Aerial Imagery: ${document.getElementById('geometry_aerial').value}
+- Geometry corresponds to GLS Arrows: ${document.getElementById('geometry_gls').value}
+- Geometry corresponds to SV: ${document.getElementById('geometry_sv').value}
+
+5. Is the Route Name set?
+- Route Name Set: ${document.getElementById('route_name_set').value}
+- Route Name matches GDL: ${document.getElementById('route_gdl').value}
+- Route Name matches visible signs on SV: ${document.getElementById('route_signs_sv').value}
+
+6. Are the LP Flags set?
+- LP Flags Set: ${document.getElementById('lp_flags').value}
+
+7. Is the Road Priority correct?
+- Road Priority: ${document.getElementById('road_priority').value}
+
+8. Are the Intersections Connected?
+- Intersections Connected: ${document.getElementById('intersections_connected').value}
+
+9. Address Ranges
+- Address Ranges: ${document.getElementById('address_ranges').value}
+- Same as GDL: ${document.getElementById('ar_route_gdl').value}
+- AR corresponds to GDL geocodes: ${document.getElementById('ar_gdl_geocodes').value}
+- AR corresponds to building numbers on SV: ${document.getElementById('ar_building_sv').value}
+
+10. Private Attribute Check
+- Visible gate/fence on SV or AI: ${document.getElementById('private_gate').value}
+- Visible sign on SV: ${document.getElementById('private_sign').value}
+
+11. Turn Restrictions
+- Turn restrictions needed: ${document.getElementById('turn_restrictions').value}
+- Visible sign on SV: ${document.getElementById('turn_visible_sign').value}
+- Intersection with Minor Arterial or higher priority road: ${document.getElementById('turn_priority_road').value}
+- Staggered intersection: ${document.getElementById('turn_staggered').value}
+
+12. Other Notes
+${document.getElementById('other_notes').value}
+`;
+
+// Display output in the output box
+document.getElementById('output').innerText = output;
+
+// Copy to clipboard
+navigator.clipboard.writeText(output).then(() => {
+alert("Notes copied to clipboard!");
+});
+}
+</script>
+
+</body>
+</html>
